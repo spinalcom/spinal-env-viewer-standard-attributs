@@ -51,39 +51,66 @@ class StandardAttribute extends SpinalContextApp {
   async action() {
     // getGraph
     const graph = SpinalGraphService.getGraph();
-    let Buildings;
-    let Floors;
+    // let Buildings;
+    // let Floors;
     let AllRooms = [];
     // get Contexts
-    const contexts = await graph.getChildren("hasContext")
-    for (const context of contexts) {
-      if (context.getName().get() === "spatial") {
-        // get buildings
-        Buildings = await context.getChildren("hasGeographicBuilding")
-      }
-    }
-    if (Buildings) {
-      for (const building of Buildings) {
-        // get floors
-        Floors = await building.getChildren("hasGeographicFloor")
-      }
-    }
-    if (Floors) {
-      for (const floor of Floors) {
-        let Rooms = await floor.getChildren("hasGeographicRoom")
-        if (Rooms) {
-          for (const room of Rooms) {
-            // get rooms
-            AllRooms.push(room)
-          }
+    await graph.getChildren("hasContext").then(async (contexts) => {
+      for (const context of contexts) {
+        if (context.getName().get() === "spatial") {
+          // get buildings
+          await context.getChildren("hasGeographicBuilding").then(async (Buildings) => {
+            if (Buildings) {
+              for (const building of Buildings) {
+                // get floors
+                await building.getChildren("hasGeographicFloor").then(async (Floors) => {
+                  if (Floors) {
+                    for (const floor of Floors) {
+                      let Rooms = await floor.getChildren("hasGeographicRoom")
+                      if (Rooms) {
+                        for (const room of Rooms) {
+                          // get rooms
+                          AllRooms.push(room)
+                        }
+                      }
+                    }
+                  }
+                })
+              }
+            }
+          })
         }
       }
-    }
+    })
+    console.log(AllRooms);
+    // for (const context of contexts) {
+    //   if (context.getName().get() === "spatial") {
+    //     // get buildings
+    //     Buildings = await context.getChildren("hasGeographicBuilding")
+    //   }
+    // }
+    // if (Buildings) {
+    //   for (const building of Buildings) {
+    //     // get floors
+    //     Floors = await building.getChildren("hasGeographicFloor")
+    //   }
+    // }
+    // if (Floors) {
+    //   for (const floor of Floors) {
+    //     let Rooms = await floor.getChildren("hasGeographicRoom")
+    //     if (Rooms) {
+    //       for (const room of Rooms) {
+    //         // get rooms
+    //         AllRooms.push(room)
+    //       }
+    //     }
+    //   }
+    // }
     // interface attributes
     var infoAttributes = {
       attributeLabel: "capacity",
       attributeType: "number",
-      attributeUnit: "",
+      attributeUnit: "people",
     }
 
 
@@ -95,9 +122,6 @@ class StandardAttribute extends SpinalContextApp {
     //     }
     //   }
     // }
-
-
-
 
 
 
